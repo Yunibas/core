@@ -26,7 +26,6 @@
       "@google-cloud/storage": "^6.4.1"
    },
    "devDependencies": {
-      "@changesets/cli": "^2.26.2",
       "@types/jest": "^28.1.8",
       "@types/node": "^20.5.6",
       "dotenv": "^16.0.1",
