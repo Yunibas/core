@@ -70,6 +70,16 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       super()
    }
 
+   /**
+    * List collections
+    * @param {string} collection
+    * @param {string} id
+    * @returns {Promise<string[]>}
+    * @memberof FirestoreAdapter
+    * @example
+    * const collections = await firestore.listCollections()
+    * const collections = await firestore.listCollections('users', '1234567890')
+    */
    async listCollections(collection?: string, id?: string) {
       let result
       try {
@@ -88,6 +98,19 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
    }
 
+   /**
+    * Get document by id
+    * @param {object} props
+    * @param {string} props.collection
+    * @param {string} props.id
+    * @param {string} props.subcollection
+    * @param {string} props.subid
+    * @returns {Promise<string[]>}
+    * @memberof FirestoreAdapter
+    * @example
+    * const documents = await firestore.getDoc('users', '1234567890')
+    * const documents = await firestore.getDoc('users', '1234567890', 'posts', '0987654321')
+    */
    async getDoc(props: TFirestoreGetDocProps) {
       try {
          let ref = firestore.collection(props.collection).doc(props.id)
@@ -105,6 +128,35 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
    }
 
+   /**
+    * Get documents by collection
+    * @param {object} props
+    * @param {string} props.collection
+    * @param {string} props.id
+    * @param {string} props.subcollection
+    * @param {string} props.subid
+    * @param {string[]} props.where
+    * @param {string} props.orderBy
+    * @param {number} props.limit
+    * @param {object} props.startAt
+    * @returns {Promise<string[]>}
+    * @memberof FirestoreAdapter
+    * @example
+    * const documents = await firestore.getDocs({
+    *    collection: 'users'
+    * })
+    * const documents = await firestore.getDocs({
+    *    collection: 'users',
+    *    id: '1234567890',
+    *    subcollection: 'posts'
+    * })
+    * const documents = await firestore.getDocs({
+    *   collection: 'users',
+    *   where: ['gender', '==', 'F'],
+    *   orderBy: 'name',
+    *   limit: 10,
+    * })
+    */
    async getDocs(props: TFirestoreGetDocsProps) {
       try {
          console.error('props', JSON.stringify(props))
