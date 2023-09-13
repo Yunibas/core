@@ -1,12 +1,16 @@
 {
    "name": "@yunibas/core",
    "description": "Library for Yunibas microservices",
-   "version": "0.0.1",
+   "version": "0.0.24",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "author": "Troy Moreland <troy@yunibas.com>",
    "license": "UNLICENSED",
    "private": false,
+   "publishConfig": {
+      "access": "public",
+      "registry": "https://registry.npmjs.org/"
+   },
    "files": [
       "lib/**/*"
    ],

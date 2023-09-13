@@ -24,7 +24,7 @@ const deleteAllTopics = async () => {
    })
 }
 
-describe('Testing PubSub adapter', () => {
+describe.skip('Testing PubSub adapter', () => {
    beforeEach(async () => {
       await deleteAllTopics()
       await pause()

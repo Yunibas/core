@@ -2,8 +2,6 @@ export {}
 const { Firestore } = require('@google-cloud/firestore')
 const GoogleCloudAdapter = require('../GoogleCloudAdapter')
 
-const firestore = new Firestore()
-
 type TFirestoreCollection = {
    id: string
 }
@@ -66,20 +64,24 @@ type TFirestoreDocsResponse = {
 }
 
 module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
-   constructor() {
+   constructor(databaseId: string) {
       super()
+      this.databaseId = databaseId
+      this.firestore = new Firestore({
+         databaseId,
+      })
    }
 
    async listCollections(collection?: string, id?: string) {
       let result
       try {
          if (collection && id) {
-            result = await firestore
+            result = await this.firestore
                .collection(collection)
                .doc(id)
                .listCollections()
          } else {
-            result = await firestore.listCollections()
+            result = await this.firestore.listCollections()
          }
          return result.map((c: TFirestoreCollection) => c.id)
       } catch (error) {
@@ -90,7 +92,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async getDoc(props: TFirestoreGetDocProps) {
       try {
-         let ref = firestore.collection(props.collection).doc(props.id)
+         let ref = this.firestore.collection(props.collection).doc(props.id)
          if (props.subcollection && props.subid) {
             ref = ref.collection(props.subcollection).doc(props.subid)
          }
@@ -107,13 +109,16 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async getDocs(props: TFirestoreGetDocsProps) {
       try {
-         console.error('props', JSON.stringify(props))
-         let ref = firestore.collection(props.collection)
+         let ref = this.firestore.collection(props.collection)
          if (props.id && props.subcollection) {
             ref = ref.doc(props.id).collection(props.subcollection)
          }
 
-         if (props.where) ref = ref.where(props.where)
+         if (props.where) {
+            for (let w of props.where) {
+               ref = ref.where(w[0], w[1], w[2])
+            }
+         }
 
          // Require an orderBy for pagination
          if (props.orderBy) ref = ref.orderBy(props.orderBy)
@@ -153,7 +158,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async getGroupDocs(props: TFirestoreGetGroupDocsProps) {
       try {
-         let ref = firestore.collectionGroup(props.collection)
+         let ref = this.firestore.collectionGroup(props.collection)
 
          if (props.where) {
             ref = ref.where(props.where)
@@ -173,6 +178,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
          }
 
          const snapshot = await ref.get()
+         console.log('snapshot', snapshot)
          const docs = snapshot.docs.map((doc: TFirestoreDoc) => {
             const path = doc.ref.path.split('/')
             return {
@@ -194,13 +200,15 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
          return result
       } catch (error) {
          // @ts-ignore
+         console.error(error.code, error.details, error.metadata)
+         // @ts-ignore
          throw new Error(error)
       }
    }
 
    async addDoc(props: TFirestoreAddDocProps) {
       try {
-         let ref = firestore.collection(props.collection)
+         let ref = this.firestore.collection(props.collection)
          if (props.id && props.subcollection) {
             ref = ref.doc(props.id).collection(props.subcollection)
          }
@@ -220,7 +228,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async replaceDoc(props: TFirestoreUpdateDocProps) {
       try {
-         let ref = firestore.collection(props.collection).doc(props.id)
+         let ref = this.firestore.collection(props.collection).doc(props.id)
          if (props.subcollection && props.subid) {
             ref = ref.collection(props.subcollection).doc(props.subid)
          }
@@ -237,7 +245,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async updateDoc(props: TFirestoreUpdateDocProps) {
       try {
-         let ref = firestore.collection(props.collection).doc(props.id)
+         let ref = this.firestore.collection(props.collection).doc(props.id)
          if (props.subcollection && props.subid) {
             ref = ref.collection(props.subcollection).doc(props.subid)
          }
@@ -254,7 +262,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async deleteDoc(props: TFirestoreDeleteDocProps) {
       try {
-         let ref = firestore.collection(props.collection).doc(props.id)
+         let ref = this.firestore.collection(props.collection).doc(props.id)
          if (props.subcollection && props.subid) {
             ref = ref.collection(props.subcollection).doc(props.subid)
          }
