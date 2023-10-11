@@ -1,7 +1,7 @@
 {
    "name": "@yunibas/core",
    "description": "Library for Yunibas microservices",
-   "version": "0.0.27",
+   "version": "0.0.28",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "author": "Troy Moreland <troy@yunibas.com>",
@@ -29,7 +29,8 @@
       "@google-cloud/firestore": "^6.7.0",
       "@google-cloud/logging": "^11.0.0",
       "@google-cloud/pubsub": "^4.0.2",
-      "@google-cloud/storage": "^7.0.1"
+      "@google-cloud/storage": "^7.0.1",
+      "uuid": "^9.0.1"
    },
    "devDependencies": {
       "@types/jest": "^29.5.4",

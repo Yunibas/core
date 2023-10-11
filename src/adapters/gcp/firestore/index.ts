@@ -1,5 +1,7 @@
 export {}
 const { Firestore } = require('@google-cloud/firestore')
+const { v4: uuidv4 } = require('uuid')
+
 const GoogleCloudAdapter = require('../GoogleCloudAdapter')
 
 type TFirestoreCollection = {
@@ -260,18 +262,19 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
    async addDoc(props: TFirestoreAddDocProps) {
       try {
+         const id = uuidv4()
          let ref = this.firestore.collection(props.collection)
          if (props.id && props.subcollection) {
-            ref = ref.doc(props.id).collection(props.subcollection)
+            ref = ref.doc(props.id).collection(props.subcollection).doc(id)
+         } else {
+            ref = ref.doc(id)
          }
-         const result = await ref.add({
+         await ref.set({
             created_at: new Date().valueOf(),
+            id,
             ...props.data,
          })
-         if (result.id) {
-            return result.id
-         }
-         throw new Error('Add doc failed')
+         return id
       } catch (error) {
          // @ts-ignore
          throw new Error(error)
@@ -286,6 +289,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
          }
          await ref.set({
             updated_at: new Date().valueOf(),
+            id: props.id ?? uuidv4(),
             ...props.data,
          })
          return true

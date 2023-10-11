@@ -65,6 +65,7 @@ describe('Testing Cloud Firestore calls', () => {
          collection,
          data: {
             name: 'John Doe',
+            foo: ['bar', 'baz'],
          },
       })
       docId = result
@@ -100,13 +101,35 @@ describe('Testing Cloud Firestore calls', () => {
          collection,
          id: docId,
          data: {
+            id: '123',
             name: 'Johnny Doe',
+            foo: ['bar', 'bay'],
             birthdate: '01/01/2000',
          },
       })
       const result = await fs.getDoc({ collection, id: docId })
       expect(result).toBeTruthy()
       expect(result).toMatchObject({ name: 'Johnny Doe' })
+   })
+
+   test('should query with where value in array', async () => {
+      let results = { count: 0, docs: [] }
+      const where = [['id', 'in', ['123', '321']]]
+      let result = await fs.getDocs({ collection, where })
+      results.docs = results.docs.concat(result.docs)
+      results.count += result.count
+      expect(Array.isArray(result.docs)).toBe(true)
+      expect(results.count).toBe(1)
+   })
+
+   test('should query with where array contains', async () => {
+      let results = { count: 0, docs: [] }
+      const where = [['foo', 'array-contains', 'bar']]
+      let result = await fs.getDocs({ collection, where })
+      results.docs = results.docs.concat(result.docs)
+      results.count += result.count
+      expect(Array.isArray(result.docs)).toBe(true)
+      expect(results.count).toBe(1)
    })
 
    test('should update a document', async () => {
@@ -198,6 +221,7 @@ describe('Testing Cloud Firestore calls', () => {
       results.docs = results.docs.concat(result.docs)
       results.count += result.count
       expect(Array.isArray(result.docs)).toBe(true)
+      expect(results.count).toBe(20)
    })
 
    test('should query with pagination', async () => {
