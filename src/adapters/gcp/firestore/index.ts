@@ -6,7 +6,6 @@ const GoogleCloudAdapter = require('../GoogleCloudAdapter')
 
 type TFirestoreProps = {
   projectId?: string
-  databaseId?: string
 }
 type TFirestoreCollection = {
   id: string
