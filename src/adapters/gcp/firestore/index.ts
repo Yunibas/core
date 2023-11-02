@@ -6,6 +6,7 @@ const GoogleCloudAdapter = require('../GoogleCloudAdapter')
 
 type TFirestoreProps = {
   projectId?: string
+  databaseId?: string
 }
 type TFirestoreCollection = {
   id: string
@@ -71,7 +72,8 @@ type TFirestoreDocsResponse = {
 module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
   constructor(props: TFirestoreProps) {
     super()
-    this.firestore = new Firestore(props)
+    const settings = props.projectId ? { projectId: props.projectId } : {}
+    this.firestore = new Firestore(settings, props.databaseId ?? null)
   }
 
   /**
