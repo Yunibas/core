@@ -1,4 +1,2 @@
-# GCP Adapter Library
-
-## Deployment
-
+[Adapters](./adapters/README.md)
+[Utils](./utils/README.md)
