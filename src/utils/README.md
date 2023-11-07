@@ -1,10 +1,18 @@
 [< Back to Root](../../README.md)
 
-## parsePubSubMessage
+# Utils
 
-Used to parse JSON in PubSub message.
+## Transformation Utils
 
 ```js
-const utils = new Utils()
-const event = utils.parsePubSubMessage(message)
+import { TransformUtils } from '@yunibas/core'
+const transform = new TransformUtils()
+```
+
+### parsePubSubMessage
+
+Used to parse JSON from PubSub event message.
+
+```js
+const event = transform.parsePubSubMessage(message)
 ```
