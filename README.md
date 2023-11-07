@@ -1,2 +1,5 @@
-[Adapters](./adapters/README.md)
-[Utils](./utils/README.md)
+# Yunibas Core Library
+
+[Adapter Guide](./src/adapters/README.md)
+
+[Utils Guide](./src/utils/README.md)
