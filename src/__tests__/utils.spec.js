@@ -1,10 +1,9 @@
-const Utils = require('../utils')
-
-const utils = new Utils()
+const TransformUtils = require('../utils/transformation')
+const transform = new TransformUtils()
 
 describe('Testing Utils', () => {
   test('should parse pubsub message', () => {
-    const result = utils.parsePubSubMessage({
+    const result = transform.parsePubSubMessage({
       data: {
         message: {
           data: Buffer.from('{"foo":"bar"}').toString('base64'),
