@@ -1,4 +1,4 @@
-const TransformUtils = require('../utils/transformation')
+const { TransformUtils } = require('../../lib')
 const transform = new TransformUtils()
 
 describe('Testing Utils', () => {
