@@ -2,7 +2,7 @@ const LoggingAdapter = require('../adapters/gcp/logging')
 
 const logger = new LoggingAdapter()
 
-describe.skip('testing logging adapter', () => {
+describe('testing logging adapter', () => {
    test('should send log without error', () => {
       logger.info('test', {
          timestamp: new Date().toISOString(),

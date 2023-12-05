@@ -15,7 +15,7 @@
     "lib/**/*"
   ],
   "scripts": {
-    "set:env:gcp": "cross-env GOOGLE_APPLICATION_CREDENTIALS=/Users/tmoreland/Desktop/yunibas-prms-dev-service-account.json",
+    "set:env:gcp": "cross-env GOOGLE_APPLICATION_CREDENTIALS=/Users/tmoreland/code/yunibas-projects/yunibas-prms-dev-service-account.json",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "run:jest": "jest",
     "test": "npm-run-all set:env:gcp run:jest",

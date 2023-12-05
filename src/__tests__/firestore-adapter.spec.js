@@ -5,7 +5,7 @@ const fs = new FirestoreAdapter('emulator-sandbox')
 const collection = 'fake_collection'
 const subcollection = 'sub_collection'
 
-describe.skip('Testing Cloud Firestore calls', () => {
+describe('Testing Cloud Firestore calls', () => {
   let count = 0,
     original_count = 0,
     docId = ''

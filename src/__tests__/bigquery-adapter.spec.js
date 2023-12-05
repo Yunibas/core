@@ -7,7 +7,7 @@ const bq = new BigQueryAdapter()
 const dataset = 'fake_dataset'
 const table = 'fake_table'
 
-describe.skip('Testing BigQuery calls', () => {
+describe('Testing BigQuery calls', () => {
   test('should not return dataset', async () => {
     let result
     try {
