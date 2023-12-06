@@ -72,8 +72,16 @@ type TFirestoreDocsResponse = {
 module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
   constructor(props: TFirestoreProps) {
     super()
-    const settings = props.projectId ? { projectId: props.projectId } : {}
-    this.firestore = new Firestore(settings, props.databaseId ?? null)
+    this.firsestore = null
+    if (props && typeof props === 'object') {
+      const settings = props.projectId ? { projectId: props.projectId } : {}
+      this.firestore = new Firestore(settings, props?.databaseId ?? null)
+    } else if (props && typeof props === 'string') {
+      this.firestore = new Firestore({ projectId: props })
+    } else {
+      this.firestore = new Firestore()
+    }
+    console.log('FirestoreAdapter', this.firestore)
   }
 
   /**
