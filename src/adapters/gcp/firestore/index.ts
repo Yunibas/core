@@ -48,6 +48,7 @@ type TFirestoreAddDocProps = {
   collection: string
   id?: string
   subcollection?: string
+  subid?: string
   data: TFirestoreDocData
 }
 type TFirestoreUpdateDocProps = {
@@ -81,7 +82,6 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
     } else {
       this.firestore = new Firestore()
     }
-    console.log('FirestoreAdapter', this.firestore)
   }
 
   /**
@@ -248,7 +248,6 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
 
       const snapshot = await ref.get()
-      console.log('snapshot', snapshot)
       const docs = snapshot.docs.map((doc: TFirestoreDoc) => {
         const path = doc.ref.path.split('/')
         return {
@@ -278,11 +277,14 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
   async addDoc(props: TFirestoreAddDocProps) {
     try {
-      const id = uuidv4()
+      let id
+
       let ref = this.firestore.collection(props.collection)
       if (props.id && props.subcollection) {
+        id = props.subid ? props.subid : uuidv4()
         ref = ref.doc(props.id).collection(props.subcollection).doc(id)
       } else {
+        id = props.id ? props.id : uuidv4()
         ref = ref.doc(id)
       }
       await ref.set({

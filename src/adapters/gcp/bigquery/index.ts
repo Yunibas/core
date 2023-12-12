@@ -46,7 +46,6 @@ module.exports = class BigQueryAdapter extends GoogleCloudAdapter {
       location = 'us-central1',
    }: TBigQueryCreateDatasetProps) {
       try {
-         console.log('createDataset', name, location)
          const [dataset] = await bigquery.dataset(name).create({
             location,
          })

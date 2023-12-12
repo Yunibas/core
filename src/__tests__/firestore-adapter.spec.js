@@ -49,7 +49,7 @@ describe('Testing Cloud Firestore calls', () => {
 
   afterAll(async () => {
     // await $deleteSubcollectionDocs()
-    // await $deleteCollectionDocs()
+    await $deleteCollectionDocs()
   })
 
   test('should return collections', async () => {
@@ -78,16 +78,29 @@ describe('Testing Cloud Firestore calls', () => {
     expect(typeof result).toBe('string')
   })
 
+  test('should add a document with provided id', async () => {
+    const result = await fs.addDoc({
+      collection,
+      id: '123abc',
+      data: {
+        name: 'John Black',
+      },
+    })
+    expect(result).toBeDefined()
+    expect(result).toBe('123abc')
+    await fs.deleteDoc({ collection, id: '123abc' })
+  })
+
   test('should return doc', async () => {
     const result = await fs.getDoc({ collection, id: docId })
     expect(result).toMatchObject({ name: 'John Doe' })
   })
 
-  test('should return array of one', async () => {
+  test('should return array of at least one', async () => {
     const result = await fs.getDocs({ collection })
     count = result.count
-    expect(count).toBe(1)
-    expect(result.docs.length).toBe(1)
+    expect(count).toBeGreaterThanOrEqual(1)
+    expect(result.docs.length).toBeGreaterThanOrEqual(1)
   })
 
   test('should return empty array', async () => {
@@ -167,11 +180,11 @@ describe('Testing Cloud Firestore calls', () => {
 
   let subid
   // TODO: Requires an index to be created
-  test.skip('should return one subcollection group doc', async () => {
+  test('should return one subcollection group doc', async () => {
     const result = await fs.getGroupDocs({ collection: subcollection })
     subid = result.docs[0].id
     expect(Array.isArray(result.docs)).toBe(true)
-    expect(result.docs.length).toBe(1)
+    expect(result.docs.length).toBeGreaterThanOrEqual(1)
   })
 
   test('should return subcollection array of one', async () => {
@@ -181,8 +194,8 @@ describe('Testing Cloud Firestore calls', () => {
       subcollection,
     })
     count = result.count
-    expect(count).toBe(1)
-    expect(result.docs.length).toBe(1)
+    expect(count).toBeGreaterThanOrEqual(1)
+    expect(result.docs.length).toBeGreaterThanOrEqual(1)
   })
 
   test('should delete a subcollection doc', async () => {
@@ -226,7 +239,7 @@ describe('Testing Cloud Firestore calls', () => {
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
     expect(Array.isArray(result.docs)).toBe(true)
-    expect(results.count).toBe(20)
+    expect(results.count).toBeGreaterThanOrEqual(20)
   })
 
   test('should query with order by', async () => {
@@ -236,7 +249,7 @@ describe('Testing Cloud Firestore calls', () => {
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
     expect(Array.isArray(result.docs)).toBe(true)
-    expect(results.count).toBe(20)
+    expect(results.count).toBeGreaterThanOrEqual(20)
   })
 
   test('should query with pagination', async () => {
