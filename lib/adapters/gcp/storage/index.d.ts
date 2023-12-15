@@ -1,11 +1,11 @@
 declare function _exports(): {
     listBuckets: () => Promise<string[]>;
-    createBucket: (bucketName: any) => Promise<import("@google-cloud/storage/build/cjs/src/bucket").Bucket>;
+    createBucket: (bucketName: any) => Promise<import("@google-cloud/storage/build/src/bucket").Bucket>;
     deleteBucket: (bucketName: any) => Promise<boolean>;
     listFiles: ({ bucketName, options }: {
         bucketName: any;
         options: any;
-    }) => Promise<import("@google-cloud/storage/build/cjs/src/file").File[]>;
+    }) => Promise<import("@google-cloud/storage/build/src/file").File[]>;
     saveFile: ({ bucketName, destFileName, contents }: {
         bucketName: any;
         destFileName: any;
