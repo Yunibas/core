@@ -1,5 +1,6 @@
 export {}
 const protobuf = require('protobufjs')
+const fs = require('fs')
 
 const Utils = require('../BaseUtils')
 const DataUtils = require('../data')
@@ -30,6 +31,7 @@ module.exports = class TransformUtils extends Utils {
       const collection = docParts[0]
       const docId = docParts[1]
 
+      console.log('fs', fs.readFileSync('.', 'utf8'))
       const root = await protobuf.load('./lib/proto/data.proto')
       const DocumentEventData = root.lookupType(
         'google.events.cloud.firestore.v1.DocumentEventData'
@@ -49,6 +51,7 @@ module.exports = class TransformUtils extends Utils {
 
   encodeFirestoreEvent = async (event: TEvent) => {
     try {
+      console.log('fs', fs.readFileSync('.', 'utf8'))
       const root = await protobuf.load('./lib/proto/data.proto')
       const DocumentEventData = root.lookupType(
         'google.events.cloud.firestore.v1.DocumentEventData'
