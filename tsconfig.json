@@ -12,11 +12,6 @@
     "noImplicitReturns": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/__tests__/*"
-  ]
+  "include": ["src", "__tests__"],
+  "exclude": ["node_modules", "**/__tests__/*"]
 }

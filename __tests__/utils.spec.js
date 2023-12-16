@@ -1,4 +1,4 @@
-const { DataUtils, TransformUtils } = require('../../lib')
+const { DataUtils, TransformUtils } = require('../lib')
 const $data = new DataUtils()
 const $transform = new TransformUtils()
 
