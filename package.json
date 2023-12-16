@@ -16,9 +16,13 @@
   ],
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "test": "jest",
-    "test:firestore": "jest --testPathPattern=firestore",
-    "build": "tsc",
+    "pretest": "npm-run-all build",
+    "test": "yarn pretest && jest",
+    "test:firestore": "yarn pretest && jest --testPathPattern=firestore",
+    "test:utils": "yarn pretest && jest --testPathPattern=utils",
+    "cp:proto": "cp -r src/proto lib/",
+    "run:tsc": "tsc",
+    "build": "npm-run-all run:tsc cp:proto",
     "release": "yarn run build && changeset publish",
     "version:major": "npm version major",
     "version:minor": "npm version minor",
@@ -32,6 +36,8 @@
     "@google-cloud/logging": "^11.0.0",
     "@google-cloud/pubsub": "^4.0.7",
     "@google-cloud/storage": "^7.7.0",
+    "lodash": "^4.17.21",
+    "protobufjs": "^7.2.5",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -40,6 +46,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "jest": "^29.6.4",
+    "npm-run-all": "^4.1.5",
     "prettier": "^3.0.2",
     "ts-jest": "^29.1.1",
     "tslint": "^6.1.3",

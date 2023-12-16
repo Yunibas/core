@@ -1,6 +1,12 @@
 export {}
+const protobuf = require('protobufjs')
+
 const Utils = require('../BaseUtils')
+const DataUtils = require('../data')
+const $data = new DataUtils()
+
 type TMessage = any
+type TEvent = any
 
 module.exports = class TransformUtils extends Utils {
   constructor() {
@@ -16,5 +22,62 @@ module.exports = class TransformUtils extends Utils {
 
     const event = JSON.parse(str_message)
     return event
+  }
+
+  decodeFirestoreEvent = async (event: TEvent) => {
+    try {
+      const docParts = event.document.split('/')
+      const collection = docParts[0]
+      const docId = docParts[1]
+
+      const root = await protobuf.load('lib/proto/data.proto')
+      const DocumentEventData = root.lookupType(
+        'google.events.cloud.firestore.v1.DocumentEventData'
+      )
+
+      const data = DocumentEventData.decode(event.data)
+      return {
+        collection,
+        docId,
+        data,
+      }
+    } catch (error) {
+      console.error(error)
+      throw new Error()
+    }
+  }
+
+  encodeFirestoreEvent = async (event: TEvent) => {
+    try {
+      const root = await protobuf.load('lib/proto/data.proto')
+      const DocumentEventData = root.lookupType(
+        'google.events.cloud.firestore.v1.DocumentEventData'
+      )
+
+      const data = DocumentEventData.encode(event.data).finish()
+
+      return {
+        ...event,
+        data,
+      }
+    } catch (error) {
+      console.error(error)
+      throw new Error()
+    }
+  }
+
+  parseUpdateDiff = (before: TEvent, after: TEvent, exclude = []) => {
+    try {
+      const diff = $data.getChangeDiffs(after, before, exclude)
+
+      if (!Object.keys(diff.after).length && !Object.keys(diff.before).length) {
+        return false
+      }
+
+      return diff
+    } catch (error) {
+      console.error(error)
+      throw new Error()
+    }
   }
 }
