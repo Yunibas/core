@@ -9,6 +9,11 @@ const $data = new DataUtils()
 type TMessage = any
 type TEvent = any
 
+const isLive = !fs.existsSync('./lib')
+const protoPath = isLive
+  ? './node_modules/@yunibas/core/lib/proto/data.proto'
+  : './lib/proto/data.proto'
+
 module.exports = class TransformUtils extends Utils {
   constructor() {
     super()
@@ -31,8 +36,7 @@ module.exports = class TransformUtils extends Utils {
       const collection = docParts[0]
       const docId = docParts[1]
 
-      console.log('fs', fs.readdirSync('.', 'utf8'))
-      const root = await protobuf.load('./lib/proto/data.proto')
+      const root = await protobuf.load(protoPath)
       const DocumentEventData = root.lookupType(
         'google.events.cloud.firestore.v1.DocumentEventData'
       )
@@ -51,8 +55,7 @@ module.exports = class TransformUtils extends Utils {
 
   encodeFirestoreEvent = async (event: TEvent) => {
     try {
-      console.log('fs', fs.readdirSync('.', 'utf8'))
-      const root = await protobuf.load('./lib/proto/data.proto')
+      const root = await protobuf.load(protoPath)
       const DocumentEventData = root.lookupType(
         'google.events.cloud.firestore.v1.DocumentEventData'
       )
