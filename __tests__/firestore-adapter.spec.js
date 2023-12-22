@@ -1,4 +1,4 @@
-const FirestoreAdapter = require('../adapters/gcp/firestore')
+const FirestoreAdapter = require('../lib/adapters/gcp/firestore')
 
 const fs = new FirestoreAdapter()
 // const fs = new FirestoreAdapter('emulator-sandbox')
@@ -128,6 +128,17 @@ describe('Testing Cloud Firestore calls', () => {
     const result = await fs.getDoc({ collection, id: docId })
     expect(result).toBeTruthy()
     expect(result).toMatchObject({ name: 'Johnny Doe' })
+  })
+
+  test('should delete a document field', async () => {
+    await fs.deleteDocField({
+      collection,
+      id: docId,
+      field: 'birthdate',
+    })
+    const result = await fs.getDoc({ collection, id: docId })
+    expect(result).toBeTruthy()
+    expect(result.birthdate).toBeFalsy()
   })
 
   test('should query with where value in array', async () => {
@@ -269,5 +280,13 @@ describe('Testing Cloud Firestore calls', () => {
     }
     expect(results.count).toBeGreaterThan(limit)
     expect(Array.isArray(result.docs)).toBe(true)
+  })
+
+  test('should delete documents in batch', async () => {
+    const result = await fs.deleteDocs({
+      collection,
+      where: [['name', '==', 'Foo']],
+    })
+    expect(result).toBeTruthy()
   })
 })

@@ -1,5 +1,5 @@
 export {}
-const { Firestore } = require('@google-cloud/firestore')
+const { Firestore, FieldValue } = require('@google-cloud/firestore')
 const { v4: uuidv4 } = require('uuid')
 
 const GoogleCloudAdapter = require('../GoogleCloudAdapter')
@@ -64,6 +64,19 @@ type TFirestoreDeleteDocProps = {
   subcollection?: string
   subid?: string
 }
+type TFirestoreDeleteDocsProps = {
+  collection: string
+  id?: string
+  subcollection?: string
+  where: string[]
+}
+type TFirestoreDeleteDocFieldProps = {
+  collection: string
+  id: string
+  subcollection?: string
+  subid?: string
+  field: string
+}
 type TFirestoreDocsResponse = {
   count: number
   startAt?: {}
@@ -73,7 +86,7 @@ type TFirestoreDocsResponse = {
 module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
   constructor(props: TFirestoreProps) {
     super()
-    this.firsestore = null
+    this.firestore
     if (props && typeof props === 'object') {
       const settings = props.projectId ? { projectId: props.projectId } : {}
       this.firestore = new Firestore(settings, props?.databaseId ?? null)
@@ -341,6 +354,52 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
         ref = ref.collection(props.subcollection).doc(props.subid)
       }
       await ref.delete()
+      return true
+    } catch (error) {
+      // @ts-ignore
+      throw new Error(error)
+    }
+  }
+
+  async deleteDocs(props: TFirestoreDeleteDocsProps) {
+    try {
+      const exists = await this.getDocs(props)
+      if (!exists.docs.length) return true
+
+      const docs = exists.docs
+      const deleteBatch = this.firestore.batch()
+      docs.forEach((doc) => {
+        if (props.subcollection) {
+          deleteBatch.delete(
+            this.firestore
+              .collection(props.collection)
+              .doc(doc.id)
+              .collection(props.subcollection)
+              .doc(doc.id)
+          )
+        } else {
+          deleteBatch.delete(
+            this.firestore.collection(props.collection).doc(doc.id)
+          )
+        }
+      })
+      return await deleteBatch.commit()
+    } catch (error) {
+      // @ts-ignore
+      throw new Error(error)
+    }
+  }
+
+  async deleteDocField(props: TFirestoreDeleteDocFieldProps) {
+    try {
+      let ref = this.firestore.collection(props.collection).doc(props.id)
+      if (props.subcollection && props.subid) {
+        ref = ref.collection(props.subcollection).doc(props.subid)
+      }
+      await ref.update({
+        updated_at: new Date().valueOf(),
+        [props.field]: FieldValue.delete(),
+      })
       return true
     } catch (error) {
       // @ts-ignore
