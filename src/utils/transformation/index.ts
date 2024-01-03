@@ -4,7 +4,10 @@ const fs = require('fs')
 
 const Utils = require('../BaseUtils')
 const DataUtils = require('../data')
+const ErrorUtils = require('../error')
+
 const $data = new DataUtils()
+const $error = new ErrorUtils()
 
 type TMessage = any
 type TEvent = any
@@ -20,14 +23,18 @@ module.exports = class TransformUtils extends Utils {
   }
 
   parsePubSubMessage = (message: TMessage) => {
-    const raw_message = message.data.message.data
-    if (!raw_message) throw new Error('Missing message')
+    try {
+      const raw_message = message.data.message.data
+      if (!raw_message) throw new Error('Missing message')
 
-    const str_message = Buffer.from(raw_message, 'base64').toString()
-    if (!JSON.parse(str_message)) throw new Error('Malformed message')
+      const str_message = Buffer.from(raw_message, 'base64').toString()
+      if (!JSON.parse(str_message)) throw new Error('Malformed message')
 
-    const event = JSON.parse(str_message)
-    return event
+      const event = JSON.parse(str_message)
+      return event
+    } catch (error) {
+      throw $error.errorHandler(error)
+    }
   }
 
   decodeFirestoreEvent = async (event: TEvent) => {
@@ -48,8 +55,7 @@ module.exports = class TransformUtils extends Utils {
         data,
       }
     } catch (error) {
-      console.error(error)
-      throw new Error()
+      throw $error.errorHandler(error)
     }
   }
 
@@ -67,8 +73,7 @@ module.exports = class TransformUtils extends Utils {
         data,
       }
     } catch (error) {
-      console.error(error)
-      throw new Error()
+      throw $error.errorHandler(error)
     }
   }
 

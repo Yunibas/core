@@ -10,4 +10,5 @@ Deploying as a Google Cloud Function will take on the permissions of the service
 
 Currently, these adapters do not support running in any other environment.
 
+[Cloud Logging Adapter](./logging/README.md)
 [Firestore Adapter](./firestore/README.md)
