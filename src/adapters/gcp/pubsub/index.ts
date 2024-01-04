@@ -2,7 +2,10 @@ export {}
 const { PubSub } = require('@google-cloud/pubsub')
 const GoogleCloudAdapter = require('../GoogleCloudAdapter')
 
+const { ErrorUtils } = require('../../../utils')
+
 const pubsub = new PubSub()
+const $error = new ErrorUtils()
 
 interface IPubSubPublish {
   topic: string
@@ -21,12 +24,8 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
         await pubsub.createTopic(name)
       }
       return true
-    } catch (error: unknown) {
-      let message
-      if (error instanceof Error) message = error.message
-      else message = String(error)
-      console.error('createTopic', message)
-      throw new Error(message)
+    } catch (error) {
+      throw $error.errorHandler(error)
     }
   }
 
@@ -38,12 +37,8 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
         response.push(topic)
       }
       return response
-    } catch (error: unknown) {
-      let message
-      if (error instanceof Error) message = error.message
-      else message = String(error)
-      console.error('getTopics', message)
-      throw new Error(message)
+    } catch (error) {
+      throw $error.errorHandler(error)
     }
   }
 
@@ -51,12 +46,8 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
     try {
       const [topic] = await pubsub.topic(name)
       return topic
-    } catch (error: unknown) {
-      let message
-      if (error instanceof Error) message = error.message
-      else message = String(error)
-      console.error('getTopic', message)
-      throw new Error(message)
+    } catch (error) {
+      throw $error.errorHandler(error)
     }
   }
 
@@ -65,12 +56,8 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
       const [exists] = await pubsub.topic(name).exists()
       if (exists) await pubsub.topic(name).delete()
       return true
-    } catch (error: unknown) {
-      let message
-      if (error instanceof Error) message = error.message
-      else message = String(error)
-      console.error('deleteTopic', message)
-      throw new Error(message)
+    } catch (error) {
+      throw $error.errorHandler(error)
     }
   }
 
@@ -87,12 +74,8 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
         .topic(topic)
         .publishMessage({ data: dataBuffer })
       return messageId
-    } catch (error: unknown) {
-      let message
-      if (error instanceof Error) message = error.message
-      else message = String(error)
-      console.error('publishMessage', message)
-      throw new Error(message)
+    } catch (error) {
+      throw $error.errorHandler(error)
     }
   }
 }

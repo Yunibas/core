@@ -1,4 +1,4 @@
-const PubSubAdapter = require('../adapters/gcp/pubsub')
+const PubSubAdapter = require('../src/adapters/gcp/pubsub')
 
 const ps = new PubSubAdapter()
 
@@ -12,36 +12,17 @@ const pause = async (ms = 500) => {
   })
 }
 
-const deleteAllTopics = async () => {
-  return new Promise(async (res, rej) => {
-    const topics = await ps.getTopics()
-    await Promise.all(
-      topics.map((topic) => {
-        ps.deleteTopic(topic.name)
-      })
-    )
-    res()
-  })
-}
-
 describe('Testing PubSub adapter', () => {
   beforeEach(async () => {
-    await deleteAllTopics()
     await pause()
   })
 
-  afterAll(async () => {
-    await deleteAllTopics()
-    await pause()
-  })
-
-  test('should create a topic', async () => {
+  test('createTopic should create a topic', async () => {
     const result = await ps.createTopic(fakeTopic)
     expect(result).toBeTruthy()
   })
 
-  test('should submit message to topic', async () => {
-    await ps.createTopic(fakeTopic)
+  test('publishMessage should submit message', async () => {
     const result = await ps.publishMessage({
       topic: fakeTopic,
       message: 'Houston, we do not have a problem',
@@ -49,15 +30,17 @@ describe('Testing PubSub adapter', () => {
     expect(result).toBeTruthy()
   })
 
-  test('should return multiple topics', async () => {
+  test('getTopics should return multiple topics', async () => {
+    const before = await ps.getTopics()
     await ps.createTopic(`${fakeTopic}1`)
-    await ps.createTopic(`${fakeTopic}2`)
-    const result = await ps.getTopics()
-    expect(result.length).toBe(2)
+    const after = await ps.getTopics()
+    expect(after.length).toBeGreaterThan(before.length)
   })
 
-  test('should return no topics', async () => {
-    const result = await ps.getTopics()
-    expect(result.length).toBe(0)
+  test('deleteTopic should remove topic', async () => {
+    const result = await ps.deleteTopic(fakeTopic)
+    const result2 = await ps.deleteTopic(`${fakeTopic}1`)
+    expect(result).toBeTruthy()
+    expect(result2).toBeTruthy()
   })
 })

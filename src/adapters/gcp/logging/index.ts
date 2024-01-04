@@ -58,19 +58,6 @@ const write_entry = async (props: TLogEntry) => {
     // Prepares a log entry
     const entry = log.entry(metadata, message)
 
-    // switch (severity) {
-    //   case 'DEBUG':
-    //     console.log(entry)
-    //     log.debug(entry)
-    //   case 'INFO':
-    //     log.info(entry)
-    //   case 'WARN':
-    //     log.warning(entry)
-    //   case 'ERROR':
-    //     log.error(entry)
-    //   default:
-    //     log.notice(entry)
-    // }
     log.write(entry) // Writes the log entry
 
     return void 0

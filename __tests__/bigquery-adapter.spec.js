@@ -1,6 +1,6 @@
 // TODO: Add test for loadFromBucket
 
-const BigQueryAdapter = require('../adapters/gcp/bigquery')
+const BigQueryAdapter = require('../src/adapters/gcp/bigquery')
 
 const bq = new BigQueryAdapter()
 
@@ -20,6 +20,15 @@ describe('Testing BigQuery calls', () => {
   test('should create dataset', async () => {
     const result = await bq.createDataset({ name: dataset })
     expect(result).toBeTruthy()
+    expect(result).toHaveProperty('id')
+    expect(result.id).toMatch(dataset)
+  })
+
+  test('should return dataset', async () => {
+    const result = await bq.getDataset({ name: dataset })
+    expect(result).toBeTruthy()
+    expect(result).toHaveProperty('id')
+    expect(result.id).toMatch(dataset)
   })
 
   test('should create table', async () => {
@@ -36,17 +45,13 @@ describe('Testing BigQuery calls', () => {
 
   test('should run query', async () => {
     const sql = `SELECT * FROM \`${dataset}.${table}\``
-    const [rows] = await bq.runQuery({ sql })
-    expect(rows).toBeTruthy()
-  })
-
-  test('should find dataset', async () => {
-    const result = await bq.getDataset({ name: dataset })
+    const result = await bq.runQuery({ sql })
     expect(result).toBeTruthy()
+    expect(result.length).toBe(1)
   })
 
   test('should delete dataset', async () => {
-    const result = await bq.deleteDataset(dataset)
+    const result = await bq.deleteDataset({ name: dataset })
     expect(result).toBeTruthy()
   })
 })
