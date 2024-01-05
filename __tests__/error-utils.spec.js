@@ -7,7 +7,7 @@ describe('Testing Error Utils', () => {
     try {
       console.log(foo)
     } catch (error) {
-      result = $error.errorHandler(error)
+      result = $error.errorHandler({ error })
     }
     expect(result).toBeTruthy()
     expect(result instanceof Error).toBeTruthy()
@@ -19,7 +19,7 @@ describe('Testing Error Utils', () => {
     try {
       throw 'This was an error'
     } catch (error) {
-      result = $error.errorHandler(error)
+      result = $error.errorHandler({ error })
     }
     expect(result).toBeTruthy()
     expect(result instanceof Error).toBeTruthy()
@@ -31,7 +31,7 @@ describe('Testing Error Utils', () => {
     try {
       throw 500
     } catch (error) {
-      result = $error.errorHandler(error)
+      result = $error.errorHandler({ error })
     }
     expect(result).toBeTruthy()
     expect(result instanceof Error).toBeTruthy()
@@ -43,7 +43,7 @@ describe('Testing Error Utils', () => {
     try {
       throw { name: 'Sam' }
     } catch (error) {
-      result = $error.errorHandler(error)
+      result = $error.errorHandler({ error })
     }
     expect(result).toBeTruthy()
     expect(result instanceof Error).toBeTruthy()
@@ -55,7 +55,7 @@ describe('Testing Error Utils', () => {
     try {
       throw false
     } catch (error) {
-      result = $error.errorHandler(error)
+      result = $error.errorHandler({ error })
     }
     expect(result).toBeTruthy()
     expect(result instanceof Error).toBeTruthy()
@@ -67,10 +67,28 @@ describe('Testing Error Utils', () => {
     try {
       throw () => {}
     } catch (error) {
-      result = $error.errorHandler(error)
+      result = $error.errorHandler({ error })
     }
     expect(result).toBeTruthy()
     expect(result instanceof Error).toBeTruthy()
     expect(result.message).toBe('[Unable to display the error value]')
+  })
+
+  test('errorHandler should handle additional params', () => {
+    let result
+    try {
+      throw 'This was an error'
+    } catch (error) {
+      result = $error.errorHandler({
+        error,
+        service: 'service',
+        process: 'process',
+        action: 'action',
+        log: true,
+      })
+    }
+    expect(result).toBeTruthy()
+    expect(result instanceof Error).toBeTruthy()
+    expect(result.message).toBe('This was an error')
   })
 })

@@ -2,28 +2,63 @@ export {}
 
 const Utils = require('../BaseUtils')
 
+type ErrorHandlerProps = {
+  error: unknown
+  service?: string
+  process?: string
+  action?: string
+  log?: boolean
+}
+
 module.exports = class ErrorUtils extends Utils {
   constructor() {
     super()
   }
 
-  errorHandler = (err: unknown) => {
-    if (err instanceof Error) {
-      return err
+  /**
+   * @description Error handler
+   * @param {object|string|number|boolean|unknown} error
+   * @param {string} [service] - Identifies the source service.
+   * @param {string} [process] - Identifies the source process.
+   * @param {string} [action] - Identifies the source action.
+   * @param {boolean} [log] - Specifies whether to include a console error log.
+   * @returns {Error}
+   */
+  errorHandler = (props: ErrorHandlerProps) => {
+    const { error, service, process, action, log } = props
+
+    // Handle error value
+    let $error = error
+    if (!(error instanceof Error)) {
+      let stringified = '[Unable to display the error value]'
+      if (typeof error === 'string') {
+        stringified = error
+      }
+      if (
+        typeof error === 'number' ||
+        typeof error === 'boolean' ||
+        typeof error === 'object'
+      ) {
+        stringified = JSON.stringify(error)
+      }
+
+      $error = new Error(String(stringified))
     }
 
-    let stringified = '[Unable to display the error value]'
-    if (typeof err === 'string') {
-      stringified = err
-    }
-    if (
-      typeof err === 'number' ||
-      typeof err === 'boolean' ||
-      typeof err === 'object'
-    ) {
-      stringified = JSON.stringify(err)
+    if (log) {
+      let message = ($error as Error).message
+      if (action) {
+        message = `[${action}] ${message}`
+      }
+      if (process) {
+        message = `[${process}] ${message}`
+      }
+      if (service) {
+        message = `[${service}] ${message}`
+      }
+      console.error(message)
     }
 
-    return new Error(String(stringified))
+    return $error
   }
 }
