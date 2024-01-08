@@ -1,5 +1,5 @@
 export {}
-
+const Bugsnag = require('@bugsnag/js')
 const Utils = require('../BaseUtils')
 
 type ErrorHandlerProps = {
@@ -10,9 +10,25 @@ type ErrorHandlerProps = {
   log?: boolean
 }
 
+type BugsnagConfig = {
+  apiKey: string
+  appType?: string
+  appVersion?: string
+  context?: string
+  releaseStage?: string
+}
+
+type ConstructorProps = {
+  bugsnag?: BugsnagConfig
+}
+
 module.exports = class ErrorUtils extends Utils {
-  constructor() {
+  constructor(props: ConstructorProps) {
     super()
+    if (props?.bugsnag) {
+      this.useBugsnag = true
+      Bugsnag.start(props.bugsnag)
+    }
   }
 
   /**
@@ -57,6 +73,10 @@ module.exports = class ErrorUtils extends Utils {
         message = `[${service}] ${message}`
       }
       console.error(message)
+    }
+
+    if (this.useBugsnag) {
+      Bugsnag.notify($error)
     }
 
     return $error

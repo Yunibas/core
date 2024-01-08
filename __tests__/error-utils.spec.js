@@ -1,8 +1,8 @@
 const { ErrorUtils } = require('../lib')
-const $error = new ErrorUtils()
 
 describe('Testing Error Utils', () => {
   test('errorHandler should return Error from ReferenceError', () => {
+    const $error = new ErrorUtils()
     let result
     try {
       console.log(foo)
@@ -15,6 +15,7 @@ describe('Testing Error Utils', () => {
   })
 
   test('errorHandler should return Error from String', () => {
+    const $error = new ErrorUtils()
     let result
     try {
       throw 'This was an error'
@@ -27,6 +28,7 @@ describe('Testing Error Utils', () => {
   })
 
   test('errorHandler should return Error from Number', () => {
+    const $error = new ErrorUtils()
     let result
     try {
       throw 500
@@ -39,6 +41,7 @@ describe('Testing Error Utils', () => {
   })
 
   test('errorHandler should return Error from Object', () => {
+    const $error = new ErrorUtils()
     let result
     try {
       throw { name: 'Sam' }
@@ -51,6 +54,7 @@ describe('Testing Error Utils', () => {
   })
 
   test('errorHandler should return Error from Boolean', () => {
+    const $error = new ErrorUtils()
     let result
     try {
       throw false
@@ -63,6 +67,7 @@ describe('Testing Error Utils', () => {
   })
 
   test('errorHandler should return Error from Undefined', () => {
+    const $error = new ErrorUtils()
     let result
     try {
       throw () => {}
@@ -75,6 +80,34 @@ describe('Testing Error Utils', () => {
   })
 
   test('errorHandler should handle additional params', () => {
+    const $error = new ErrorUtils()
+    let result
+    try {
+      throw 'This was an error'
+    } catch (error) {
+      result = $error.errorHandler({
+        error,
+        service: 'service',
+        process: 'process',
+        action: 'action',
+        log: true,
+      })
+    }
+    expect(result).toBeTruthy()
+    expect(result instanceof Error).toBeTruthy()
+    expect(result.message).toBe('This was an error')
+  })
+
+  test('errorHandler should send error to Bugsnag', () => {
+    const $error = new ErrorUtils({
+      bugsnag: {
+        apiKey: '7b766dc9a6be04376da7c43bdda812f3',
+        appType: 'test',
+        appVersion: '0.0.0',
+        context: 'core - test',
+        releaseStage: 'test',
+      },
+    })
     let result
     try {
       throw 'This was an error'

@@ -56,11 +56,9 @@ module.exports = class StorageAdapter extends GoogleCloudAdapter {
     this.storage
     if (props && typeof props === 'object') {
       const payload = props.projectId ? { projectId: props.projectId } : {}
-      console.log('payload', payload)
       this.storage = new Storage(payload)
     } else if (props && typeof props === 'string') {
       const payload = { projectId: props }
-      console.log('payload', payload)
       this.storage = new Storage(payload)
     } else {
       this.storage = new Storage()

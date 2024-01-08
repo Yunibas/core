@@ -38,6 +38,7 @@
     "deploy": "npm publish --access public"
   },
   "dependencies": {
+    "@bugsnag/js": "^7.22.3",
     "@google-cloud/bigquery": "^7.3.0",
     "@google-cloud/firestore": "^7.1.0",
     "@google-cloud/logging": "^11.0.0",
