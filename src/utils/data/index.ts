@@ -15,7 +15,7 @@ module.exports = class DataUtils extends Utils {
     newObj: Record<string, unknown>,
     oldObj: Record<string, any>
   ) => {
-    return transform(
+    const result = transform(
       newObj,
       (result: Record<string, unknown>, value: any, key: string) => {
         if (!isEqual(value, oldObj[key])) {
@@ -26,6 +26,10 @@ module.exports = class DataUtils extends Utils {
         }
       }
     )
+
+    if (!result || JSON.stringify(result) === '{}') return null
+
+    return result
   }
 
   getChangeDiffs = (

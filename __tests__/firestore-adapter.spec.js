@@ -1,7 +1,7 @@
 const FirestoreAdapter = require('../lib/adapters/gcp/firestore')
 
-const fs = new FirestoreAdapter()
-// const fs = new FirestoreAdapter('emulator-sandbox')
+// const fs = new FirestoreAdapter()
+const fs = new FirestoreAdapter('emulator-sandbox')
 // const fs = new FirestoreAdapter({
 //   projectId: 'emulator-sandbox',
 //   databaseId: 'foo',

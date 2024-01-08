@@ -25,7 +25,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
       }
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -38,7 +38,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
       }
       return response
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -47,7 +47,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
       const [topic] = await pubsub.topic(name)
       return topic
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -57,7 +57,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
       if (exists) await pubsub.topic(name).delete()
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -75,7 +75,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
         .publishMessage({ data: dataBuffer })
       return messageId
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 }

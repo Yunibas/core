@@ -33,7 +33,7 @@ module.exports = class TransformUtils extends Utils {
       const event = JSON.parse(str_message)
       return event
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -55,7 +55,7 @@ module.exports = class TransformUtils extends Utils {
         data,
       }
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -73,22 +73,21 @@ module.exports = class TransformUtils extends Utils {
         data,
       }
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
   parseUpdateDiff = (before: TEvent, after: TEvent, exclude = []) => {
     try {
       const diff = $data.getChangeDiffs(after, before, exclude)
-
-      if (!Object.keys(diff.after).length && !Object.keys(diff.before).length) {
+      //TODO: Probably isn't accurate when objects are nested
+      if (!diff.after && !diff.before) {
         return false
       }
 
       return diff
     } catch (error) {
-      console.error(error)
-      throw new Error()
+      throw $error.errorHandler({ error })
     }
   }
 }

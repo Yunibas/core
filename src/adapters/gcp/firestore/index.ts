@@ -123,7 +123,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
       return result.map((c: TFirestoreCollection) => c.id)
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -152,7 +152,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
       return false
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -181,7 +181,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
    * })
    * const documents = await firestore.getDocs({
    *   collection: 'users',
-   *   where: ['gender', '==', 'F'],
+   *   where: [['gender', '==', 'F']],
    *   orderBy: [['sortOrder', 'asc']['name', 'desc']],
    *   limit: 10,
    * })
@@ -235,7 +235,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
       return result
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -281,7 +281,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
       return result
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -304,7 +304,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       })
       return id
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -321,7 +321,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       })
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -337,7 +337,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       })
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -350,7 +350,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       await ref.delete()
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -376,9 +376,10 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
           )
         }
       })
-      return await deleteBatch.commit()
+      await deleteBatch.commit()
+      return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -394,7 +395,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       })
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 }

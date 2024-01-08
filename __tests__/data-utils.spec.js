@@ -7,8 +7,7 @@ describe('Testing Data Utils', () => {
       { name: 'ACME Inc', id: '000000000001' },
       { name: 'ACME Inc', id: '000000000001' }
     )
-    expect(result).toBeTruthy()
-    expect(result).toStrictEqual({})
+    expect(result).toBeFalsy()
   })
 
   test('objectDiffs should return diff for "id"', () => {
@@ -21,7 +20,7 @@ describe('Testing Data Utils', () => {
     expect(result.id).toBe('000000000001')
   })
 
-  test('objectDiffs should return nested diff for "age"', () => {
+  test('objectDiffs should return no diff missing "height"', () => {
     const result = $data.objectDiffs(
       {
         id: '000000000001',
@@ -38,10 +37,10 @@ describe('Testing Data Utils', () => {
       }
     )
     expect(result).toBeTruthy()
-    expect(result).toStrictEqual({ meta: {} })
+    expect(result).toStrictEqual({ meta: null })
   })
 
-  test('objectDiffs should return no diff missing "height"', () => {
+  test('objectDiffs should return nested diff for "age"', () => {
     const result = $data.objectDiffs(
       {
         id: '000000000001',
@@ -103,7 +102,7 @@ describe('Testing Data Utils', () => {
     expect(result).toBeTruthy()
     expect(result).toStrictEqual({
       before: { meta: { height: 180 } },
-      after: { meta: {} },
+      after: { meta: null },
     })
   })
 
@@ -122,8 +121,8 @@ describe('Testing Data Utils', () => {
     console.log(result)
     expect(result).toBeTruthy()
     expect(result).toStrictEqual({
-      before: {},
-      after: {},
+      before: null,
+      after: null,
     })
   })
 })

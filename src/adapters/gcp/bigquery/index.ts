@@ -58,7 +58,7 @@ module.exports = class BigQueryAdapter extends GoogleCloudAdapter {
       })
       return dataset
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -72,7 +72,7 @@ module.exports = class BigQueryAdapter extends GoogleCloudAdapter {
       })
       return dataset
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -85,7 +85,7 @@ module.exports = class BigQueryAdapter extends GoogleCloudAdapter {
       await $bigquery.dataset(name).delete({ location, force })
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -108,7 +108,7 @@ module.exports = class BigQueryAdapter extends GoogleCloudAdapter {
       }
       return true
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 
@@ -121,7 +121,7 @@ module.exports = class BigQueryAdapter extends GoogleCloudAdapter {
       const [rows] = await job.getQueryResults()
       return rows
     } catch (error) {
-      throw $error.errorHandler(error)
+      throw $error.errorHandler({ error })
     }
   }
 }
