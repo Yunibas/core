@@ -4,24 +4,35 @@ const GoogleCloudAdapter = require('../GoogleCloudAdapter')
 
 const { ErrorUtils } = require('../../../utils')
 
-const pubsub = new PubSub()
 const $error = new ErrorUtils()
 
-interface IPubSubPublish {
+type TConstructorPropsObject = {
+  projectId: string
+}
+type TConstructorProps = TConstructorPropsObject | string
+type TPubSubPublish = {
   topic: string
   message: string | Record<string, any>
 }
 
 module.exports = class PubSubAdapter extends GoogleCloudAdapter {
-  constructor() {
+  constructor(props: TConstructorProps) {
     super()
+    this.pubsub
+    if (props && typeof props === 'object') {
+      this.pubsub = new PubSub(props)
+    } else if (props && typeof props === 'string') {
+      this.pubsub = new PubSub({ projectId: props })
+    } else {
+      this.pubsub = new PubSub()
+    }
   }
 
   createTopic = async (name: string) => {
     try {
-      const [exists] = await pubsub.topic(name).exists()
+      const [exists] = await this.pubsub.topic(name).exists()
       if (!exists) {
-        await pubsub.createTopic(name)
+        await this.pubsub.createTopic(name)
       }
       return true
     } catch (error) {
@@ -32,7 +43,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
   getTopics = async () => {
     try {
       let response: Record<string, any>[] = []
-      const [topics] = await pubsub.getTopics()
+      const [topics] = await this.pubsub.getTopics()
       for (let topic of topics) {
         response.push(topic)
       }
@@ -44,7 +55,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
 
   getTopic = async (name: string) => {
     try {
-      const [topic] = await pubsub.topic(name)
+      const [topic] = await this.pubsub.topic(name)
       return topic
     } catch (error) {
       throw $error.errorHandler({ error })
@@ -53,15 +64,15 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
 
   deleteTopic = async (name: string) => {
     try {
-      const [exists] = await pubsub.topic(name).exists()
-      if (exists) await pubsub.topic(name).delete()
+      const [exists] = await this.pubsub.topic(name).exists()
+      if (exists) await this.pubsub.topic(name).delete()
       return true
     } catch (error) {
       throw $error.errorHandler({ error })
     }
   }
 
-  publishMessage = async (props: IPubSubPublish) => {
+  publishMessage = async (props: TPubSubPublish) => {
     try {
       let { topic, message } = props
       let dataBuffer
@@ -70,7 +81,7 @@ module.exports = class PubSubAdapter extends GoogleCloudAdapter {
       } else {
         dataBuffer = Buffer.from(JSON.stringify(message))
       }
-      const messageId = await pubsub
+      const messageId = await this.pubsub
         .topic(topic)
         .publishMessage({ data: dataBuffer })
       return messageId

@@ -1,6 +1,6 @@
 const PubSubAdapter = require('../src/adapters/gcp/pubsub')
 
-const ps = new PubSubAdapter()
+const ps = new PubSubAdapter('emulator-sandbox')
 
 const fakeTopic = 'FooTopic'
 
