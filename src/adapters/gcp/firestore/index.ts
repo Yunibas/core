@@ -7,10 +7,11 @@ const { ErrorUtils } = require('../../../utils')
 
 const $error = new ErrorUtils()
 
-type TFirestoreProps = {
+type TFirestorePropsObject = {
   projectId?: string
   databaseId?: string
 }
+type TFirestoreProps = TFirestorePropsObject | string
 type TFirestoreCollection = {
   id: string
 }
@@ -91,8 +92,9 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
     super()
     this.firestore
     if (props && typeof props === 'object') {
-      const settings = props.projectId ? { projectId: props.projectId } : {}
-      this.firestore = new Firestore(settings, props?.databaseId ?? null)
+      const options: Record<string, unknown> = {}
+      if (props.projectId) options.projectId = props.projectId
+      this.firestore = new Firestore(options, props.databaseId || '(default)')
     } else if (props && typeof props === 'string') {
       this.firestore = new Firestore({ projectId: props })
     } else {

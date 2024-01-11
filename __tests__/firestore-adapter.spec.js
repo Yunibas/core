@@ -1,11 +1,11 @@
 const FirestoreAdapter = require('../lib/adapters/gcp/firestore')
 
 // const fs = new FirestoreAdapter()
-const fs = new FirestoreAdapter('emulator-sandbox')
-// const fs = new FirestoreAdapter({
-//   projectId: 'emulator-sandbox',
-//   databaseId: 'foo',
-// })
+// const fs = new FirestoreAdapter('emulator-sandbox')
+const fs = new FirestoreAdapter({
+  projectId: 'emulator-sandbox',
+  databaseId: 'foo',
+})
 
 const collection = 'fake_collection'
 const subcollection = 'sub_collection'
