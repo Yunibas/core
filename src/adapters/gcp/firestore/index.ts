@@ -92,9 +92,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
     super()
     this.firestore
     if (props && typeof props === 'object') {
-      const options: Record<string, unknown> = {}
-      if (props.projectId) options.projectId = props.projectId
-      this.firestore = new Firestore(options, props.databaseId || '(default)')
+      this.firestore = new Firestore(props)
     } else if (props && typeof props === 'string') {
       this.firestore = new Firestore({ projectId: props })
     } else {
