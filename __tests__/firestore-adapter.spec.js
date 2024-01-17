@@ -1,11 +1,11 @@
 const FirestoreAdapter = require('../lib/adapters/gcp/firestore')
 
-// const fs = new FirestoreAdapter()
+const fs = new FirestoreAdapter()
 // const fs = new FirestoreAdapter('emulator-sandbox')
-const fs = new FirestoreAdapter({
-  projectId: 'emulator-sandbox',
-  databaseId: 'foo',
-})
+// const fs = new FirestoreAdapter({
+//   projectId: 'emulator-sandbox',
+//   databaseId: 'foo',
+// })
 
 const collection = 'fake_collection'
 const subcollection = 'sub_collection'
@@ -190,7 +190,6 @@ describe('Testing Cloud Firestore calls', () => {
   })
 
   let subid
-  // TODO: Requires an index to be created
   test('should return one subcollection group doc', async () => {
     const result = await fs.getGroupDocs({ collection: subcollection })
     subid = result.docs[0].id
@@ -235,6 +234,7 @@ describe('Testing Cloud Firestore calls', () => {
         collection,
         data: {
           name: 'Foo',
+          age: i + 1,
           created_at: new Date().valueOf(),
         },
       })
@@ -251,6 +251,25 @@ describe('Testing Cloud Firestore calls', () => {
     results.count += result.count
     expect(Array.isArray(result.docs)).toBe(true)
     expect(results.count).toBeGreaterThanOrEqual(20)
+  })
+
+  test('should query with where and filter', async () => {
+    let results = { count: 0, docs: [] }
+    const where = [
+      [
+        'or',
+        [
+          ['age', '==', 1],
+          ['age', '==', 2],
+        ],
+      ],
+      ['name', '==', 'Foo'],
+    ]
+    let result = await fs.getDocs({ collection, where })
+    results.docs = results.docs.concat(result.docs)
+    results.count += result.count
+    expect(Array.isArray(result.docs)).toBe(true)
+    expect(results.count).toBe(2)
   })
 
   test('should query with order by', async () => {

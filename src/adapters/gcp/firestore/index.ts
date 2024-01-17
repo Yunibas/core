@@ -1,5 +1,5 @@
 export {}
-const { Firestore, FieldValue } = require('@google-cloud/firestore')
+const { Firestore, FieldValue, Filter } = require('@google-cloud/firestore')
 const { v4: uuidv4 } = require('uuid')
 
 const GoogleCloudAdapter = require('../GoogleCloudAdapter')
@@ -195,7 +195,16 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
       if (props.where) {
         for (let w of props.where) {
-          ref = ref.where(w[0], w[1], w[2])
+          if (w[0] === 'or' && Array.isArray(w[1])) {
+            let filterRef = Filter.or(
+              ...w[1].map((f: string[]) => {
+                return Filter.where(f[0], f[1], f[2])
+              })
+            )
+            ref = ref.where(filterRef)
+          } else {
+            ref = ref.where(w[0], w[1], w[2])
+          }
         }
       }
 
@@ -244,7 +253,18 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       let ref = this.firestore.collectionGroup(props.collection)
 
       if (props.where) {
-        ref = ref.where(props.where)
+        for (let w of props.where) {
+          if (w[0] === 'or' && Array.isArray(w[1])) {
+            let filterRef = Filter.or(
+              ...w[1].map((f: string[]) => {
+                return Filter.where(f[0], f[1], f[2])
+              })
+            )
+            ref = ref.where(filterRef)
+          } else {
+            ref = ref.where(w[0], w[1], w[2])
+          }
+        }
       }
 
       // Require an orderBy for pagination
