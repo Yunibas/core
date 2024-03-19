@@ -1,7 +1,7 @@
 const FirestoreAdapter = require('../lib/adapters/gcp/firestore')
 
-const fs = new FirestoreAdapter()
-// const fs = new FirestoreAdapter('emulator-sandbox')
+// const fs = new FirestoreAdapter()
+const fs = new FirestoreAdapter('emulator-sandbox')
 // const fs = new FirestoreAdapter({
 //   projectId: 'emulator-sandbox',
 //   databaseId: 'foo',
@@ -288,17 +288,45 @@ describe('Testing Cloud Firestore calls', () => {
     let result = await fs.getDocs({ collection, limit })
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
-    while (result.startAt) {
+    while (result.startAfter) {
       result = await fs.getDocs({
         collection,
-        limit: 5,
-        startAt: result.startAt,
+        limit,
+        startAfter: result.startAfter,
       })
       results.docs = results.docs.concat(result.docs)
       results.count += result.count
     }
-    expect(results.count).toBeGreaterThan(limit)
+    expect(results.count).toBe(20)
     expect(Array.isArray(result.docs)).toBe(true)
+  })
+
+  test('should query with pagination and sorting', async () => {
+    let results = { count: 0, docs: [] }
+    const limit = 5
+    const orderBy = [['age', 'desc']]
+    let result = await fs.getDocs({ collection, limit, orderBy })
+    results.docs = results.docs.concat(result.docs)
+    results.count += result.count
+    // console.log(results)
+    while (result.startAfter) {
+      result = await fs.getDocs({
+        collection,
+        limit,
+        orderBy,
+        startAfter: result.startAfter,
+      })
+      results.docs = results.docs.concat(result.docs)
+      results.count += result.count
+    }
+    expect(results.count).toBe(20)
+    expect(Array.isArray(result.docs)).toBe(true)
+  })
+
+  test('should return total number of docs in context', async () => {
+    const where = [['age', '>', 17]]
+    const result = await fs.getDocCount({ collection, where })
+    expect(result).toBe(3)
   })
 
   test('should delete documents in batch', async () => {

@@ -39,14 +39,14 @@ type TFirestoreGetDocsProps = {
   where?: string[]
   orderBy?: string
   limit?: number
-  startAt?: {}
+  startAfter?: {}
 }
 type TFirestoreGetGroupDocsProps = {
   collection: string
   where?: string[]
   orderBy?: string
   limit?: number
-  startAt?: {}
+  startAfter?: {}
 }
 type TFirestoreAddDocProps = {
   collection: string
@@ -83,7 +83,7 @@ type TFirestoreDeleteDocFieldProps = {
 }
 type TFirestoreDocsResponse = {
   count: number
-  startAt?: {}
+  startAfter?: {}
   docs: Record<string, unknown>[]
 }
 
@@ -167,7 +167,7 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
    * @param {string[]} props.where
    * @param {Array<OrderBy>} props.orderBy
    * @param {number} props.limit
-   * @param {Object} props.startAt
+   * @param {Object} props.startAfter
    * @returns {Promise<string[]>}
    * @memberof FirestoreAdapter
    * @example
@@ -209,38 +209,38 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
 
       // Require an orderBy for pagination
-      // if (props.orderBy) ref = ref.orderBy(props.orderBy)
+      let orderBy
       if (props.orderBy) {
-        for (let o of props.orderBy) {
+        orderBy = props.orderBy
+        for (let o of orderBy) {
           ref = ref.orderBy(o[0], o[1] || 'asc')
         }
       }
 
       // Require a limit for pagination
-      let limit = 0
-      if (props.orderBy) {
-        limit = props.limit ?? 1000
-        ref = ref.limit(limit ?? 1000)
-      }
+      const limit = props.limit ?? 1000
+      ref = ref.limit(limit)
 
-      // Add startAt for pagination when provided
-      if (props.startAt) {
-        ref = ref.startAt(props.startAt)
+      // Add startAfter for pagination when provided
+      if (props.startAfter) {
+        ref = ref.startAfter(props.startAfter)
       }
 
       const snapshot = await ref.get()
-      let docs: Record<string, unknown>[] = []
-      snapshot.forEach((doc: TFirestoreDoc) => {
-        docs.push({ id: doc.id, ...doc.data() })
+      const docs = snapshot.docs.map((doc: TFirestoreDoc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        }
       })
 
       let result: TFirestoreDocsResponse = {
-        count: snapshot.docs.length,
+        count: docs.length,
         docs,
       }
-      if (limit && snapshot.docs.length === limit) {
-        const last = snapshot.docs[snapshot.docs.length - 1]
-        if (props.orderBy) result.startAt = last.data()[props.orderBy]
+
+      if (docs.length === limit) {
+        result.startAfter = snapshot.docs[snapshot.docs.length - 1]
       }
       return result
     } catch (error) {
@@ -273,11 +273,11 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
 
       // Require a limit for pagination
       const limit = props.limit ?? 1000
-      ref = ref.limit(limit ?? 1000)
+      ref = ref.limit(limit)
 
-      // Add startAt for pagination when provided
-      if (props.startAt) {
-        ref = ref.startAt(props.startAt)
+      // Add startAfter for pagination when provided
+      if (props.startAfter) {
+        ref = ref.startAfter(props.startAfter)
       }
 
       const snapshot = await ref.get()
@@ -296,10 +296,39 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
         docs,
       }
       if (docs.length === limit) {
-        const last = docs[docs.length - 1]
-        result.startAt = last.data()[orderBy]
+        result.startAfter = snapshot.docs[snapshot.docs.length - 1]
       }
       return result
+    } catch (error) {
+      throw $error.errorHandler({ error })
+    }
+  }
+
+  async getDocCount(props: TFirestoreGetDocsProps) {
+    try {
+      let ref = this.firestore.collection(props.collection)
+      if (props.id && props.subcollection) {
+        ref = ref.doc(props.id).collection(props.subcollection)
+      }
+
+      if (props.where) {
+        for (let w of props.where) {
+          if (w[0] === 'or' && Array.isArray(w[1])) {
+            let filterRef = Filter.or(
+              ...w[1].map((f: string[]) => {
+                return Filter.where(f[0], f[1], f[2])
+              })
+            )
+            ref = ref.where(filterRef)
+          } else {
+            ref = ref.where(w[0], w[1], w[2])
+          }
+        }
+      }
+
+      const snapshot = await ref.count().get()
+      const count = snapshot.data().count
+      return count
     } catch (error) {
       throw $error.errorHandler({ error })
     }
