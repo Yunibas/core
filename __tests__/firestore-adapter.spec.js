@@ -282,51 +282,91 @@ describe('Testing Cloud Firestore calls', () => {
     expect(results.count).toBeGreaterThanOrEqual(20)
   })
 
+  test('should return total number of docs in context', async () => {
+    const where = [['age', '>', 17]]
+    const result = await fs.getDocCount({ collection, where })
+    expect(result).toBe(3)
+  })
+
+  test('should add 20 documents', async () => {
+    for (let i = 0; i < 20; i++) {
+      const result = await fs.addDoc({
+        collection,
+        data: {
+          name: 'Foo',
+          age: i + 1,
+          created_at: new Date().valueOf(),
+        },
+      })
+      expect(result).toBeDefined()
+      expect(typeof result).toBe('string')
+    }
+  })
+
   test('should query with pagination', async () => {
     let results = { count: 0, docs: [] }
-    const limit = 5
-    let result = await fs.getDocs({ collection, limit })
+    const limit = 2
+    const where = [['name', '==', 'Foo']]
+    let result = await fs.getDocs({ collection, where, limit })
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
     while (result.startAfter) {
       result = await fs.getDocs({
         collection,
         limit,
+        where,
         startAfter: result.startAfter,
       })
       results.docs = results.docs.concat(result.docs)
       results.count += result.count
     }
-    expect(results.count).toBe(20)
-    expect(Array.isArray(result.docs)).toBe(true)
+    expect(results.count).toBe(40)
+    expect(Array.isArray(results.docs)).toBe(true)
   })
 
   test('should query with pagination and sorting', async () => {
     let results = { count: 0, docs: [] }
-    const limit = 5
+    const limit = 2
     const orderBy = [['age', 'desc']]
-    let result = await fs.getDocs({ collection, limit, orderBy })
+    const where = [['name', '==', 'Foo']]
+    let result = await fs.getDocs({ collection, limit, orderBy, where })
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
-    // console.log(results)
     while (result.startAfter) {
       result = await fs.getDocs({
         collection,
         limit,
         orderBy,
+        where,
         startAfter: result.startAfter,
       })
       results.docs = results.docs.concat(result.docs)
       results.count += result.count
     }
-    expect(results.count).toBe(20)
+    expect(results.count).toBe(40)
     expect(Array.isArray(result.docs)).toBe(true)
   })
 
-  test('should return total number of docs in context', async () => {
-    const where = [['age', '>', 17]]
-    const result = await fs.getDocCount({ collection, where })
-    expect(result).toBe(3)
+  test('should have invalid pagination results when not using same parameters', async () => {
+    let results = { count: 0, docs: [] }
+    const limit = 2
+    const orderBy = [['age', 'desc']]
+    const where = [['name', '==', 'Foo']]
+    let result = await fs.getDocs({ collection, limit, orderBy, where })
+    results.docs = results.docs.concat(result.docs)
+    results.count += result.count
+    while (result.startAfter) {
+      result = await fs.getDocs({
+        collection,
+        limit,
+        where,
+        startAfter: result.startAfter,
+      })
+      results.docs = results.docs.concat(result.docs)
+      results.count += result.count
+    }
+    expect(results.count).toBeLessThan(40)
+    expect(Array.isArray(result.docs)).toBe(true)
   })
 
   test('should delete documents in batch', async () => {
