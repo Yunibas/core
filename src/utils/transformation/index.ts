@@ -4,7 +4,7 @@ const fs = require('fs')
 
 const Utils = require('../BaseUtils')
 const DataUtils = require('../data')
-const ErrorUtils = require('../error')
+const { ErrorUtils } = require('../error')
 
 const $data = new DataUtils()
 const $error = new ErrorUtils()

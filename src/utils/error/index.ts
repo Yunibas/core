@@ -1,5 +1,5 @@
 export {}
-const Bugsnag = require('@bugsnag/js')
+import Bugsnag from '@bugsnag/js'
 const Utils = require('../BaseUtils')
 
 type ErrorHandlerProps = {
@@ -8,6 +8,7 @@ type ErrorHandlerProps = {
   process?: string
   action?: string
   log?: boolean
+  statusCode?: number
 }
 
 type BugsnagConfig = {
@@ -19,28 +20,61 @@ type BugsnagConfig = {
 }
 
 type ConstructorProps = {
-  bugsnag?: BugsnagConfig
+  bugsnag?: BugsnagConfig | boolean
 }
 
-module.exports = class ErrorUtils extends Utils {
-  constructor(props: ConstructorProps) {
+// Custom error class to allow for custom status codes
+class CustomError extends Error {
+  constructor(message: string, statusCode?: number) {
+    super(message)
+    this.statusCode = statusCode || 500
+  }
+  statusCode: number
+}
+
+class ServiceError extends CustomError {
+  constructor(message: string, props: ErrorHandlerProps) {
+    super(message, props.statusCode || 500)
+    this.name = 'ServiceError'
+    const $error = new ErrorUtils()
+    $error.errorHandler(props)
+  }
+}
+
+class ControllerError extends CustomError {
+  constructor(message: string, props: ErrorHandlerProps) {
+    super(message, props.statusCode || 500)
+    this.name = 'ControllerError'
+    const $error = new ErrorUtils()
+    $error.errorHandler(props)
+  }
+}
+
+class ErrorUtils extends Utils {
+  useBugsnag: boolean
+
+  constructor(props?: ConstructorProps) {
     super()
+    this.useBugsnag = false
     if (props?.bugsnag) {
       this.useBugsnag = true
-      Bugsnag.start(props.bugsnag)
+      Bugsnag.start(props.bugsnag as BugsnagConfig)
     }
   }
 
   /**
    * @description Error handler
-   * @param {object|string|number|boolean|unknown} error
-   * @param {string} [service] - Identifies the source service.
-   * @param {string} [process] - Identifies the source process.
-   * @param {string} [action] - Identifies the source action.
-   * @param {boolean} [log] - Specifies whether to include a console error log.
+   * @param {object} props
+   * @param {object|string|number|boolean|unknown} props.error
+   * @param {string} [props.service] - Identifies the source service.
+   * @param {string} [props.process] - Identifies the source process.
+   * @param {string} [props.action] - Identifies the source action.
+   * @param {boolean} [props.log] - Specifies whether to include a console error log.
+   * @param {boolean} [props.statusCode] - Sets the HTTP status code for the error or defaults to 500.
+   * @param {boolean} [props.bugsnag] - Specifies whether to report error to BugSnag.
    * @returns {Error}
    */
-  errorHandler = (props: ErrorHandlerProps) => {
+  errorHandler = (props: ErrorHandlerProps): Error => {
     const { error, service, process, action, log } = props
 
     // Handle error value
@@ -76,9 +110,11 @@ module.exports = class ErrorUtils extends Utils {
     }
 
     if (this.useBugsnag) {
-      Bugsnag.notify($error)
+      Bugsnag.notify($error as Error)
     }
 
-    return $error
+    return $error as Error
   }
 }
+
+module.exports = { ErrorUtils, CustomError, ServiceError, ControllerError }
