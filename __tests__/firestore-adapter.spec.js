@@ -303,7 +303,35 @@ describe('Testing Cloud Firestore calls', () => {
     }
   })
 
-  test('should query with pagination', async () => {
+  test('should query with server-side pagination', async () => {
+    let results = { count: 0, docs: [] }
+    const limit = 2
+    const where = [['name', '==', 'Foo']]
+    const clientSidePagination = false
+    let result = await fs.getDocs({
+      collection,
+      where,
+      limit,
+      clientSidePagination,
+    })
+    results.docs = results.docs.concat(result.docs)
+    results.count += result.count
+    while (result.startAfter) {
+      result = await fs.getDocs({
+        collection,
+        limit,
+        where,
+        startAfter: result.startAfter,
+        clientSidePagination,
+      })
+      results.docs = results.docs.concat(result.docs)
+      results.count += result.count
+    }
+    expect(results.count).toBe(40)
+    expect(Array.isArray(results.docs)).toBe(true)
+  })
+
+  test('should query with client-side pagination', async () => {
     let results = { count: 0, docs: [] }
     const limit = 2
     const where = [['name', '==', 'Foo']]
@@ -324,12 +352,19 @@ describe('Testing Cloud Firestore calls', () => {
     expect(Array.isArray(results.docs)).toBe(true)
   })
 
-  test('should query with pagination and sorting', async () => {
+  test('should query with server-side pagination and sorting', async () => {
     let results = { count: 0, docs: [] }
     const limit = 2
     const orderBy = [['age', 'desc']]
     const where = [['name', '==', 'Foo']]
-    let result = await fs.getDocs({ collection, limit, orderBy, where })
+    const clientSidePagination = false
+    let result = await fs.getDocs({
+      collection,
+      limit,
+      orderBy,
+      where,
+      clientSidePagination,
+    })
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
     while (result.startAfter) {
@@ -339,6 +374,7 @@ describe('Testing Cloud Firestore calls', () => {
         orderBy,
         where,
         startAfter: result.startAfter,
+        clientSidePagination,
       })
       results.docs = results.docs.concat(result.docs)
       results.count += result.count
@@ -347,12 +383,19 @@ describe('Testing Cloud Firestore calls', () => {
     expect(Array.isArray(result.docs)).toBe(true)
   })
 
-  test('should have invalid pagination results when not using same parameters', async () => {
+  test('should have invalid server-side pagination results when not using same parameters', async () => {
     let results = { count: 0, docs: [] }
     const limit = 2
     const orderBy = [['age', 'desc']]
     const where = [['name', '==', 'Foo']]
-    let result = await fs.getDocs({ collection, limit, orderBy, where })
+    const clientSidePagination = false
+    let result = await fs.getDocs({
+      collection,
+      limit,
+      orderBy,
+      where,
+      clientSidePagination,
+    })
     results.docs = results.docs.concat(result.docs)
     results.count += result.count
     while (result.startAfter) {
@@ -361,6 +404,7 @@ describe('Testing Cloud Firestore calls', () => {
         limit,
         where,
         startAfter: result.startAfter,
+        clientSidePagination,
       })
       results.docs = results.docs.concat(result.docs)
       results.count += result.count

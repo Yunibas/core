@@ -39,7 +39,8 @@ type TFirestoreGetDocsProps = {
   where?: string[]
   orderBy?: string
   limit?: number
-  startAfter?: {}
+  startAfter?: string | object
+  clientSidePagination?: boolean
 }
 type TFirestoreGetGroupDocsProps = {
   collection: string
@@ -222,8 +223,26 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       ref = ref.limit(limit)
 
       // Add startAfter for pagination when provided
+      let clientSidePagination = props.clientSidePagination ?? true
       if (props.startAfter) {
-        ref = ref.startAfter(props.startAfter)
+        // if is string (doc.id), use getDoc and set ref.startAfter to result
+        if (typeof props.startAfter === 'string') {
+          let getDoc = this.firestore
+            .collection(props.collection)
+            .doc(props.id ? props.id : props.startAfter)
+          if (props.subcollection) {
+            getDoc = getDoc
+              .collection(props.subcollection)
+              .doc(props.startAfter)
+          }
+          let result = await getDoc.get()
+          if (result.exists) {
+            ref = ref.startAfter(result)
+          }
+        } else {
+          clientSidePagination = false
+          ref = ref.startAfter(props.startAfter)
+        }
       }
 
       const snapshot = await ref.get()
@@ -240,7 +259,11 @@ module.exports = class FirestoreAdapter extends GoogleCloudAdapter {
       }
 
       if (docs.length === limit) {
-        result.startAfter = snapshot.docs[snapshot.docs.length - 1]
+        if (clientSidePagination) {
+          result.startAfter = snapshot.docs[snapshot.docs.length - 1].id
+        } else {
+          result.startAfter = snapshot.docs[snapshot.docs.length - 1]
+        }
       }
       return result
     } catch (error) {
